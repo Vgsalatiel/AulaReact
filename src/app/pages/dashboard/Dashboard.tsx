@@ -8,25 +8,11 @@ import {
   CardMedia,
 } from "@mui/material";
 import React, { useState } from "react"; //serve pra guardar dados que mudam (tipo o que você digitou e os livros achados).
+import ModalLivros from "../../shared/components/modalLivros/ModalLivros";
+import { LivroGoogle } from "../../shared/types/LivroGoogle";
 
 //aqui é a tipagem (só por causa do TypeScript):
 //Tá dizendo: “Um livro do Google vai ter um id, e dentro do volumeInfo vai ter um title, authors, imageLinks, etc.” Ajuda o TypeScript a entender como os dados são organizados.
-type LivroGoogle = {
-  id: String;
-  volumeInfo: {
-    title: string;
-    authors?: string[];
-    description?: string;
-    imageLinks?: {
-      thumbnail?: string;
-      extraLarge?: string;
-      large?: string;
-      medium?: string;
-      small?: string;
-      smallThumbnail?: string;
-    };
-  };
-};
 
 export default function BuscarLivros() {
   const [query, setQuery] = useState(""); //query: o que o usuário digitou no campo de busca.
@@ -34,7 +20,7 @@ export default function BuscarLivros() {
 
   const buscarLivros = async () => {
     const res = await fetch(
-      `https://www.googleapis.com/books/v1/volumes?q=${query}`
+      `https://www.googleapis.com/books/v1/volumes?q=${query}&langRestrict=pt`
     ); //fetch(...): chama a API com o que o usuário digitou (query).
     const data = await res.json(); //res.json(): pega a resposta e transforma em JSON.
     setLivros(data.items || []); //setLivros(...): guarda os livros que vieram pra gente mostrar depois.
@@ -59,74 +45,63 @@ export default function BuscarLivros() {
         </Button>
       </Box>
       <Box
-  display="grid"
-  gridTemplateColumns="repeat(auto-fill, minmax(250px, 1fr))"
-  gap={4}
->
-  {livros.map((livro) => {
-    const volume = livro.volumeInfo;
-    const imagem =
-      volume.imageLinks?.extraLarge ||
-      volume.imageLinks?.large ||
-      volume.imageLinks?.medium ||
-      volume.imageLinks?.small ||
-      volume.imageLinks?.thumbnail ||
-      volume.imageLinks?.smallThumbnail ||
-      "https://via.placeholder.com/250x350?text=Sem+Imagem";
-
-    return (
-      <Card
-        key={String(livro.id)}
-        sx={{
-          maxWidth: 550,
-          borderRadius: 3,
-          boxShadow: 3,
-          display: "flex",
-          flexDirection: "column",
-        }}
+        display="grid"
+        gridTemplateColumns="repeat(auto-fill, minmax(250px, 1fr))"
+        gap={4}
       >
-        <CardMedia
-          component="img"
-          height="350"
-          image={imagem}
-          alt={volume.title}
-        />
+        {livros.map((livro) => {
+          const volume = livro.volumeInfo;
+          const imagem =
+            volume.imageLinks?.extraLarge ||
+            volume.imageLinks?.large ||
+            volume.imageLinks?.medium ||
+            volume.imageLinks?.small ||
+            volume.imageLinks?.thumbnail ||
+            volume.imageLinks?.smallThumbnail ||
+            "https://via.placeholder.com/250x350?text=Sem+Imagem";
 
-        <CardContent
-          sx={{
-            flexGrow: 1,
-            backgroundColor: "#f5f5f5",
-            display: "flex",
-            flexDirection: "column",
-          }}
-        >
-          <Typography variant="h6">{volume.title}</Typography>
+          return (
+            <Card
+              key={String(livro.id)}
+              sx={{
+                maxWidth: 550,
+                borderRadius: 3,
+                boxShadow: 3,
+                display: "flex",
+                flexDirection: "column",
+              }}
+            >
+              <CardMedia
+                component="img"
+                height="350"
+                image={imagem}
+                alt={volume.title}
+              />
 
-          {volume.authors && (
-            <Typography variant="body2" color="text.secondary">
-              {volume.authors.join(", ")}
-            </Typography>
-          )}
+              <CardContent
+                sx={{
+                  flexGrow: 1,
+                  backgroundColor: "#f5f5f5",
+                  display:"flex",
+                  gap:"2",
+                  mb:"4",
+                  flexDirection: "column",
+                }}
+              >
+                <Typography variant="h6">{volume.title}</Typography>
 
-          <Button
-            size="small"
-            variant="contained"
-            color="primary"
-            href={`https://books.google.com.br/books?id=${livro.id}`}
-            target="_blank"
-            sx={{
-              textTransform: "none",
-              borderRadius: 2,
-              mt: "auto", // faz o botão ficar sempre embaixo
-            }}
-          >
-            Ver mais
-          </Button>
-        </CardContent>
-      </Card>
-    );
-  })}
-</Box>
+                {volume.authors && (
+                  <Typography variant="body2" color="text.secondary">
+                    {volume.authors.join(", ")}
+                  </Typography>
+                )}
+              </CardContent>
+              <ModalLivros livro={livro} />
+            </Card>
+            
+          );
+        })}
+      </Box>
     </Box>
   );
 }
