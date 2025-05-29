@@ -1,6 +1,7 @@
 import { useState } from 'react';
-import { Box, Card, TextField, Button } from '@mui/material';
+import { Box, Card, TextField, Button, Avatar } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
+import UploadAvatars from "../uploadAvatar/UploadAvatars"
 
 export default function Formulario() {
   const [email, setEmail] = useState('');
@@ -37,7 +38,7 @@ export default function Formulario() {
   };
 
   return (
-    <Box display="flex" justifyContent="center" alignItems="center" height="100vh">
+    <Box display="flex" justifyContent="center" alignItems="center" >
       <Card
         sx={{
           p: 4,
@@ -48,6 +49,7 @@ export default function Formulario() {
           width: 300,
         }}
       >
+        <UploadAvatars/>
         <TextField
           id="outlined-email-input"
           label="Email"
